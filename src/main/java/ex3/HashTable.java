@@ -38,12 +38,10 @@ public class HashTable {
             entries[hash] = hashEntry;
         }
         else {
-            HashEntry temp = entries[hash];
+            ex3.HashEntry temp = entries[hash];
 
             // si la key es la misma que me cambie el valor y si no que me añada al lado.
-            if(temp.key.equals(key)){
-                temp.value = value;
-            }else{
+            if( !temp.key.equals(key)){
                 while(temp.next != null){
                     temp = temp.next;
                     if(temp.key.equals(key)) {
@@ -56,6 +54,8 @@ public class HashTable {
                     hashEntry.prev = temp;
                     ITEMS++;
                 }
+            }else{
+                temp.value = value;
             }
         }
     }
@@ -123,27 +123,6 @@ public class HashTable {
         // piggy backing on java string
         // hashcode implementation.
         return key.hashCode() % SIZE;
-    }
-
-    private class HashEntry {
-        String key;
-        String value;
-
-        // Linked list of same hash entries.
-        HashEntry next;
-        HashEntry prev;
-
-        public HashEntry(String key, String value) {
-            this.key = key;
-            this.value = value;
-            this.next = null;
-            this.prev = null;
-        }
-
-        @Override
-        public String toString() {
-            return "[" + key + ", " + value + "]";
-        }
     }
 
     @Override
