@@ -29,6 +29,7 @@ public class HashTable {
      */
     public void put(String key, String value) {
         int hash = getHash(key);
+        boolean actualizado = false;
         final HashEntry hashEntry = new HashEntry(key, value);
         // Toca esto
 
@@ -43,13 +44,18 @@ public class HashTable {
             if(temp.key.equals(key)){
                 temp.value = value;
             }else{
-                while(temp.next != null)
+                while(temp.next != null){
                     temp = temp.next;
-
-                temp.next = hashEntry;
-                hashEntry.prev = temp;
+                    if(temp.key.equals(key)) {
+                        temp.value = value;
+                        actualizado = true;
+                    }
+                }
+                if (!actualizado){
+                    temp.next = hashEntry;
+                    hashEntry.prev = temp;
+                }
             }
-
         }
     }
 
@@ -63,12 +69,15 @@ public class HashTable {
         if(entries[hash] != null) {
             HashEntry temp = entries[hash];
 
-            while( !temp.key.equals(key))
-                temp = temp.next;
-
+            while( !temp.key.equals(key)){
+                if (temp.next != null){
+                    temp = temp.next;
+                }else{
+                    return null;
+                }
+            }
             return temp.value;
         }
-
         return null;
     }
 
@@ -81,13 +90,23 @@ public class HashTable {
         if(entries[hash] != null) {
 
             HashEntry temp = entries[hash];
-            while( !temp.key.equals(key))
+            while( !temp.key.equals(key)){
                 temp = temp.next;
+            }
 
-            if(temp.prev == null) entries[hash] = null;             //esborrar element únic (no col·lissió)
-            else{
-                if(temp.next != null) temp.next.prev = temp.prev;   //esborrem temp, per tant actualitzem l'anterior al següent
-                temp.prev.next = temp.next;                         //esborrem temp, per tant actualitzem el següent de l'anterior
+            if(temp.prev == null) {
+                if (temp.next == null){
+                    entries[hash] = null;
+                }else{
+                    entries[hash] = temp.next;
+                }
+            } else {
+                if(temp.next != null){
+                    temp.next.prev = temp.prev;
+                    temp.prev.next = temp.next;
+                }else{
+                    temp.prev.next = null;
+                }
             }
         }
     }
