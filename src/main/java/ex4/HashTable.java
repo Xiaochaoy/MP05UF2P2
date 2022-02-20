@@ -1,4 +1,4 @@
-package ex2;
+package ex4;
 
 // Original source code: https://gist.github.com/amadamala/3cdd53cb5a6b1c1df540981ab0245479
 // Modified by Fernando Porrino Serrano for academic purposes.
@@ -27,33 +27,26 @@ public class HashTable {
      * @param key La clau de l'element a afegir.
      * @param value El propi element que es vol afegir.
      */
-    public void put(String key, String value) {
+    public void put(String key, Object value) {
         int hash = getHash(key);
-        boolean actualizado = false;
         final HashEntry hashEntry = new HashEntry(key, value);
+        // Toca esto
 
-                                            // Eto para añadir un elemento nuevo
         if(entries[hash] == null) {
             ITEMS++;
             entries[hash] = hashEntry;
-        } else {
-            HashEntry temp = entries[hash];
-                                            // Eto para actualizar
-            if(temp.key.equals(key)){
+        }
+        else {
+            HashEntry temp = getTemp(key, hash);
+            if (temp != null && temp.key.equals(key)){
                 temp.value = value;
-            }else{                          // Eto para si no encuentra la key, que busque en las colisiones que haya
-                while(temp.next != null){
+            }else{
+                if (temp.next != null){
                     temp = temp.next;
-                    if(temp.key.equals(key)) {
-                        temp.value = value;
-                        actualizado = true;
-                    }
-                }                           // Si no a encontrado nada pues va añadir un elemento al lado
-                if (!actualizado){
-                    temp.next = hashEntry;
-                    hashEntry.prev = temp;
-                    ITEMS++;
                 }
+                temp.next = hashEntry;
+                hashEntry.prev = temp;
+                ITEMS++;
             }
         }
     }
@@ -63,21 +56,27 @@ public class HashTable {
      * @param key La clau de l'element a trobar.
      * @return El propi element que es busca (null si no s'ha trobat).
      */
-    public String get(String key) {
+    public Object get(String key) {
         int hash = getHash(key);
         if(entries[hash] != null) {
-            HashEntry temp = entries[hash];
-                                            // Si no encuentra que busque en la colision y no hay pues devuelve un nullo
-            while( !temp.key.equals(key)){
-                if (temp.next != null){
-                    temp = temp.next;
-                }else{
-                    return null;
-                }
-            }
+            HashEntry temp = getTemp(key, hash);
+
+            if (!temp.key.equals(key)) return null;
             return temp.value;
         }
         return null;
+    }
+
+    private HashEntry getTemp(String key, int hash) {
+        HashEntry temp = entries[hash];
+        while( !temp.key.equals(key)){
+            if (temp.next != null){
+                temp = temp.next;
+            }else{
+                break;
+            }
+        }
+        return temp;
     }
 
     /**
@@ -88,31 +87,26 @@ public class HashTable {
         int hash = getHash(key);
         if(entries[hash] != null) {
 
-            HashEntry temp = entries[hash];
-            while( !temp.key.equals(key)){  // que busque en el bucket la key que toca, si no encuentra devuelve un null
-                if (temp.next != null){
-                    temp = temp.next;
-                }else {
-                    temp = null;
-                    break;
-                }
-            }
-            if (temp != null){              // Si no es nullo
-                if(temp.prev == null) {     // No tiene superior
-                    if (temp.next == null){ // Tampoco siguiente
+            HashEntry temp = getTemp(key, hash);
+
+            if (temp != null && temp.key.equals(key)){
+                if(temp.prev == null) {
+                    if (temp.next == null){
                         entries[hash] = null;
-                    }else{                  // Tiene siguiente
+                    }else{
                         entries[hash] = temp.next;
                     }
-                } else {                    // Tiene superior
-                    if(temp.next != null){  // Tiene siguiente
+                } else {
+                    if(temp.next != null){
                         temp.next.prev = temp.prev;
                         temp.prev.next = temp.next;
-                    }else{                  // No tiene siguiente
+                    }else{
                         temp.prev.next = null;
                     }
                 }
                 ITEMS--;
+            }else{
+
             }
         }
     }
@@ -121,27 +115,6 @@ public class HashTable {
         // piggy backing on java string
         // hashcode implementation.
         return key.hashCode() % SIZE;
-    }
-
-    private class HashEntry {
-        String key;
-        String value;
-
-        // Linked list of same hash entries.
-        HashEntry next;
-        HashEntry prev;
-
-        public HashEntry(String key, String value) {
-            this.key = key;
-            this.value = value;
-            this.next = null;
-            this.prev = null;
-        }
-
-        @Override
-        public String toString() {
-            return "[" + key + ", " + value + "]";
-        }
     }
 
     @Override
@@ -244,22 +217,7 @@ public class HashTable {
         return  foundKeys;
     }
 
-    public static void main(String[] args) {
-        HashTable hashTable = new HashTable();
-        
-        // Put some key values.
-        for(int i=0; i<30; i++) {
-            final String key = String.valueOf(i);
-            hashTable.put(key, key);
-        }
-
-        // Print the HashTable structure
-        log("****   HashTable  ***");
-        log(hashTable.toString());
-        log("\nValue for key(20) : " + hashTable.get("20") );
-    }
-
-    private static void log(String msg) {
+    public static void log(String msg) {
         System.out.println(msg);
     }
 }

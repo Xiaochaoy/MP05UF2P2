@@ -29,7 +29,6 @@ public class HashTable {
      */
     public void put(String key, String value) {
         int hash = getHash(key);
-        boolean actualizado = false;
         final HashEntry hashEntry = new HashEntry(key, value);
         // Toca esto
 
@@ -38,24 +37,16 @@ public class HashTable {
             entries[hash] = hashEntry;
         }
         else {
-            ex3.HashEntry temp = entries[hash];
-
-            // si la key es la misma que me cambie el valor y si no que me añada al lado.
-            if( !temp.key.equals(key)){
-                while(temp.next != null){
-                    temp = temp.next;
-                    if(temp.key.equals(key)) {
-                        temp.value = value;
-                        actualizado = true;
-                    }
-                }
-                if (!actualizado){
-                    temp.next = hashEntry;
-                    hashEntry.prev = temp;
-                    ITEMS++;
-                }
-            }else{
+            HashEntry temp = getTemp(key, hash);
+            if (temp != null && temp.key.equals(key)){
                 temp.value = value;
+            }else{
+                if (temp.next != null){
+                    temp = temp.next;
+                }
+                temp.next = hashEntry;
+                hashEntry.prev = temp;
+                ITEMS++;
             }
         }
     }
@@ -68,18 +59,24 @@ public class HashTable {
     public String get(String key) {
         int hash = getHash(key);
         if(entries[hash] != null) {
-            HashEntry temp = entries[hash];
+            HashEntry temp = getTemp(key, hash);
 
-            while( !temp.key.equals(key)){
-                if (temp.next != null){
-                    temp = temp.next;
-                }else{
-                    return null;
-                }
-            }
+            if (!temp.key.equals(key)) return null;
             return temp.value;
         }
         return null;
+    }
+
+    private HashEntry getTemp(String key, int hash) {
+        HashEntry temp = entries[hash];
+        while( !temp.key.equals(key)){
+            if (temp.next != null){
+                temp = temp.next;
+            }else{
+                break;
+            }
+        }
+        return temp;
     }
 
     /**
@@ -90,16 +87,9 @@ public class HashTable {
         int hash = getHash(key);
         if(entries[hash] != null) {
 
-            HashEntry temp = entries[hash];
-            while( !temp.key.equals(key)){
-                if (temp.next != null){
-                    temp = temp.next;
-                }else {
-                    temp = null;
-                    break;
-                }
-            }
-            if (temp != null){
+            HashEntry temp = getTemp(key, hash);
+
+            if (temp != null && temp.key.equals(key)){
                 if(temp.prev == null) {
                     if (temp.next == null){
                         entries[hash] = null;
@@ -115,6 +105,8 @@ public class HashTable {
                     }
                 }
                 ITEMS--;
+            }else{
+
             }
         }
     }

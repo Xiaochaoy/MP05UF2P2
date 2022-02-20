@@ -21,6 +21,21 @@ public class Enunciat {
             </plugin>
         </plugins>
     </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.5.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Parameterized Tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>5.5.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
     2. Puja el projecte a GitHub i activa les accions necessàries perquè, en fer commit, s'executin els jocs de proves
        que muntaràs en els següents exercicis. Pots executar qualsevol joc de proves del package que vulguis (o més
